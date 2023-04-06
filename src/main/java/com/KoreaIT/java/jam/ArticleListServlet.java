@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ public class ArticleListServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		
+
 		response.setContentType("text/html; charset=UTF-8");
 
 		// DB 연결
@@ -47,18 +47,12 @@ public class ArticleListServlet extends HttpServlet {
 			String sql = "SELECT * FROM article;";
 
 			List<Map<String, Object>> articleRows = dbUtil.selectRows(conn, sql);
-			
-			
-			List<Article> articles = new ArrayList<>();
-			
-			for (Map<String, Object> articleRow : articleRows) {
-				articles.add(new Article(articleRow));
-			}
-					
-			response.getWriter().append("번호   /   작성자   /   제목   /   조회\n");
-			for (Article article : articles) {
-				response.getWriter().append(String.format("<div>%4d   /     %s   /   %s   /   %d</div><br>", article.id, article.title, article.body));
-			}
+
+			response.getWriter().append(articleRows.toString());
+
+			request.setAttribute("articleRows", articleRows);
+			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -71,22 +65,5 @@ public class ArticleListServlet extends HttpServlet {
 			}
 		}
 	}
-}
 
-class Article {
-	int id;
-	String regDate;
-	String title;
-	String body;
-	
-	Article(int id,String regDate,String title,String body) {
-		this.id = id;
-		this.regDate = regDate;
-		this.title = title;
-		this.body = body;
-	}
-
-	public Article(Map<String, Object> articleRow) {
-		// TODO Auto-generated constructor stub
-	}
 }
