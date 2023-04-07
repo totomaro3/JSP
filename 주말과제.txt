@@ -1,0 +1,13 @@
+http://localhost:8081/2023_04_JSP_AM/article/list?page=1 -> 최신글 10개
+- SELECT * FROM artcile ORDER BY id DESC LIMIT 0, 10
+
+ItemsInAPage = 10
+request.getParamete("page") 사용
+
+
+SELECT * FROM artcile ORDER BY id DESC LIMIT ItemsInAPage * page-1, ItemsInAPage
+
+이전글 -> http://localhost:8081/2023_04_JSP_AM/article/list?page=1 - 1
+다음글 -> http://localhost:8081/2023_04_JSP_AM/article/list?page=1 + 1
+
+page == null 일 때도 기능 구현

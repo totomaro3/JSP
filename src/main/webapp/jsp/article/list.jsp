@@ -12,18 +12,38 @@ List<Map<String, Object>> articleRows = (List<Map<String, Object>>) request.getA
 <title>게시물 리스트</title>
 </head>
 <body>
+	<div>
+		<a href="../home/main">메인페이지로 이동</a>
+	</div>
+
 	<h1>게시물 리스트</h1>
 
-	<ul>
-		<li><%=articleRows.get(0).get("id")%>번, <%=articleRows.get(0).get("regDate")%>,
-			<%=articleRows.get(0).get("title")%>, <%=articleRows.get(0).get("body")%></li>
-		<li><%=articleRows.get(1).get("id")%>번, <%=articleRows.get(1).get("regDate")%>,
-			<%=articleRows.get(1).get("title")%>, <%=articleRows.get(1).get("body")%></li>
-		<li><%=articleRows.get(2).get("id")%>번, <%=articleRows.get(2).get("regDate")%>,
-			<%=articleRows.get(2).get("title")%>, <%=articleRows.get(2).get("body")%></li>
-		<li><%=articleRows.get(3).get("id")%>번, <%=articleRows.get(3).get("regDate")%>,
-			<%=articleRows.get(3).get("title")%>, <%=articleRows.get(3).get("body")%></li>
+	<table style="border-collapse: collapse; border-color: green" border="2px">
 
-	</ul>
+		<tr>
+			<th>번호</th>
+			<th>작성날짜</th>
+			<th>제목</th>
+			<th>삭제</th>
+		</tr>
+		<%
+		for (Map<String, Object> articleRow : articleRows) {
+		%>
+		<tr style="text-align: center;">
+			<td><%=articleRow.get("id")%></td>
+			<td><%=articleRow.get("regDate")%></td>
+			<td><a href="detail?id=<%=articleRow.get("id")%>"><%=articleRow.get("title")%></a></td>
+			<td><a href="doDelete?id=<%=articleRow.get("id")%>">del</a></td>
+		</tr>
+		<%
+		}
+		%>
+		<tr>
+			<td><a href="?page=2">이전글</a></td>
+			<td></td>
+			<td></td>
+			<td><a href="?page=3">다음글</a></td>
+		</tr>
+	</table>
 </body>
 </html>
