@@ -18,7 +18,7 @@ import com.KoreaIT.java.jam.util.SecSql;
 
 @WebServlet("/article/list")
 public class ArticleListServlet extends HttpServlet {
-
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -41,21 +41,33 @@ public class ArticleListServlet extends HttpServlet {
 		try {
 			conn = DriverManager.getConnection(url, user, password);
 
-			response.getWriter().append("Success!!!");
-			
-			int page = Integer.parseInt(request.getParameter("page"));
-			
-			int ItemsInAPage = 10;
+			int page = 1;
 
-			SecSql sql = SecSql.from("SELECT *");
+			if (request.getParameter("page") != null && request.getParameter("page").length() != 0) {
+				page = Integer.parseInt(request.getParameter("page"));
+			}
+
+			int itemsInAPage = 10;
+
+			int limitFrom = (page - 1) * itemsInAPage;
+
+			SecSql sql = SecSql.from("SELECT COUNT(*) AS cnt");
+			sql.append("FROM article");
+
+			int totalCnt = DBUtil.selectRowIntValue(conn, sql);
+			int totalPage = (int) Math.ceil((double) totalCnt / itemsInAPage);
+
+			sql = SecSql.from("SELECT *");
 			sql.append("FROM article");
 			sql.append("ORDER BY id DESC");
-			sql.append("LIMIT ?, ?;",ItemsInAPage *(page-1),ItemsInAPage);
+			sql.append("LIMIT ?, ?;", limitFrom, itemsInAPage);
 
 			List<Map<String, Object>> articleRows = DBUtil.selectRows(conn, sql);
 
 			response.getWriter().append(articleRows.toString());
 
+			request.setAttribute("page", page);
+			request.setAttribute("totalPage", totalPage);
 			request.setAttribute("articleRows", articleRows);
 			request.getRequestDispatcher("/jsp/article/list.jsp").forward(request, response);
 
@@ -70,6 +82,12 @@ public class ArticleListServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doGet(request, response);
 	}
 
 }
