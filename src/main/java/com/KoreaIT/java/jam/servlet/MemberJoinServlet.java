@@ -24,4 +24,3 @@ public class MemberJoinServlet extends HttpServlet {
 	}
 
 }
-

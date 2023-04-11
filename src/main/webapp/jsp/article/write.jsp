@@ -26,5 +26,9 @@
 		<button type="submit">글쓰기</button>
 
 	</form>
+
+
+
+
 </body>
 </html>

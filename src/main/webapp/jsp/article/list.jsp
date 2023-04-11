@@ -49,6 +49,14 @@ int totalPage = (int) request.getAttribute("totalPage");
 	</table>
 
 	<style type="text/css">
+.page {
+	background-color: gold;
+}
+
+.page>a {
+	color: black;
+}
+
 .page>a.red {
 	color: red;
 }
@@ -56,28 +64,36 @@ int totalPage = (int) request.getAttribute("totalPage");
 
 	<div class="page">
 		<%
-		int minPage = 1;
-		int maxPage = 1;
-		
-		if(cPage-5 <= 1) minPage = 1;
-		else minPage = cPage-5;
-		
-		if(cPage+5 >= totalPage) maxPage = totalPage;
-		else maxPage = cPage+5;
+		if (cPage > 1) {
 		%>
-		<%if(minPage != 1){%>
-		<a href="list?page=<%=1%>">1</a> ...
-		<%} else {}%>
+		<a href="list?page=1">◀◀</a>
 		<%
-		for (int i = minPage; i <= maxPage; i++) {
+		}
+		int pageSize = 5;
+		int from = cPage - pageSize;
+		if (from < 1) {
+		from = 1;
+		}
+
+		int end = cPage + pageSize;
+		if (end > totalPage) {
+		end = totalPage;
+		}
+
+		for (int i = from; i <= end; i++) {
 		%>
 		<a class="<%=cPage == i ? "red" : ""%>" href="list?page=<%=i%>"><%=i%></a>
 		<%
 		}
 		%>
-		<%if(maxPage != totalPage){%>
-		... <a href="list?page=<%=totalPage%>"><%=totalPage%></a>
-		<%} else {}%>
+
+		<%
+		if (cPage < totalPage) {
+		%>
+		<a href="list?page=<%=totalPage%>">▶▶</a>
+		<%
+		}
+		%>
 	</div>
 
 </body>
