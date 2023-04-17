@@ -14,23 +14,32 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.KoreaIT.java.jam.config.Config;
+import com.KoreaIT.java.jam.controller.ArticleController;
 import com.KoreaIT.java.jam.exception.SQLErrorException;
 import com.KoreaIT.java.jam.util.DBUtil;
 import com.KoreaIT.java.jam.util.SecSql;
 
-@WebServlet("/article/doModify")
-public class ArticleDoModifyServlet extends HttpServlet {
+@WebServlet("/s/*")
+public class DispatcherServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		response.setContentType("text/html; charset=UTF-8");
+		request.setCharacterEncoding("UTF-8");
 
-		HttpSession session = request.getSession();
+		String requestUri = request.getRequestURI();
 
-		if (session.getAttribute("loginedMemberId") == null) {
-			response.getWriter().append(
-					String.format("<script>alert('로그인 후 이용해주세요'); location.replace('../member/login');</script>"));
+		System.out.println(requestUri);
+
+		String[] requestUriBits = requestUri.split("/");
+		// ~~/s/article/list
+		// [0]/[1]/[2]/[3]
+		System.out.println(requestUriBits[0]);
+		System.out.println(requestUriBits[1]);
+
+		if (requestUriBits.length < 5) {
+			response.getWriter().append("올바른 요청이 아닙니다");
 			return;
 		}
 
@@ -48,36 +57,36 @@ public class ArticleDoModifyServlet extends HttpServlet {
 		try {
 			conn = DriverManager.getConnection(Config.getDBUrl(), Config.getDBUser(), Config.getDBPassword());
 
-			request.setCharacterEncoding("UTF-8");
+			// 모든 요청에 응답하기 전에 무조건 해야함
+			HttpSession session = request.getSession();
+			boolean isLogined = false;
+			int loginedMemberId = -1;
+			Map<String, Object> loginedMemberRow = null;
 
-			int id = Integer.parseInt(request.getParameter("id"));
+			if (session.getAttribute("loginedMemberId") != null) {
+				isLogined = true;
+				loginedMemberId = (int) session.getAttribute("loginedMemberId");
 
-			SecSql sql = SecSql.from("SELECT *");
-			sql.append("FROM article");
-			sql.append("WHERE id = ? ;", id);
+				SecSql sql = SecSql.from("SELECT * FROM `member`");
+				sql.append("WHERE id = ?", loginedMemberId);
 
-			Map<String, Object> articleRow = DBUtil.selectRow(conn, sql);
-
-			int loginedMemberId = (int) session.getAttribute("loginedMemberId");
-
-			if (loginedMemberId != (int) articleRow.get("memberId")) {
-				response.getWriter().append(
-						String.format("<script>alert('해당 게시글에 대한 권한이 없습니다'); location.replace('list');</script>", id));
-				return;
+				loginedMemberRow = DBUtil.selectRow(conn, sql);
 			}
 
-			String title = request.getParameter("title");
-			String body = request.getParameter("body");
+			request.setAttribute("isLogined", isLogined);
+			request.setAttribute("loginedMemberId", loginedMemberId);
+			request.setAttribute("loginedMemberRow", loginedMemberRow);
 
-			sql = SecSql.from("UPDATE article");
-			sql.append("SET title = ?,", title);
-			sql.append("`body` = ?", body);
-			sql.append("WHERE id = ?", id);
+			String controllerName = requestUriBits[3];
+			String actionMethodName = requestUriBits[4];
 
-			DBUtil.update(conn, sql);
+			if (controllerName.equals("article")) {
+				ArticleController articleController = new ArticleController(request, response, conn);
 
-			response.getWriter().append(String
-					.format("<script>alert('%d번 글이 수정되었습니다'); location.replace('detail?id=%d');</script>", id, id));
+				if (actionMethodName.equals("list")) {
+					articleController.showList();
+				}
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();

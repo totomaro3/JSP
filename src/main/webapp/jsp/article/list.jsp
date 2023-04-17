@@ -1,9 +1,11 @@
 <%@ page import="java.util.List"%>
 <%@ page import="java.util.Map"%>
+<%@ page import="com.KoreaIT.java.jam.dto.Article"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%
-List<Map<String, Object>> articleRows = (List<Map<String, Object>>) request.getAttribute("articleRows");
+@SuppressWarnings("unchecked")
+List<Article> articles = (List<Article>) request.getAttribute("articles");
 int cPage = (int) request.getAttribute("page");
 int totalPage = (int) request.getAttribute("totalPage");
 %>
@@ -14,12 +16,8 @@ int totalPage = (int) request.getAttribute("totalPage");
 <title>게시물 리스트</title>
 </head>
 <body>
-	<div>
-		<a href="../home/main">메인페이지로 이동</a>
-	</div>
-	<div>
-		<a href="write">글쓰기</a>
-	</div>
+	<%@ include file="../part/topbar.jspf"%>
+
 
 	<h1>게시물 리스트</h1>
 
@@ -29,18 +27,20 @@ int totalPage = (int) request.getAttribute("totalPage");
 			<th>번호</th>
 			<th>작성날짜</th>
 			<th>제목</th>
+			<th>작성자</th>
 			<th>수정</th>
 			<th>삭제</th>
 		</tr>
 		<%
-		for (Map<String, Object> articleRow : articleRows) {
+		for (Article article : articles) {
 		%>
 		<tr style="text-align: center;">
-			<td><%=articleRow.get("id")%></td>
-			<td><%=articleRow.get("regDate")%></td>
-			<td><a href="detail?id=<%=articleRow.get("id")%>"><%=articleRow.get("title")%></a></td>
-			<td><a href="modify?id=<%=articleRow.get("id")%>">수정</a></td>
-			<td><a href="doDelete?id=<%=articleRow.get("id")%>">삭제</a></td>
+			<td><%=article.id%></td>
+			<td><%=article.regDate%></td>
+			<td><a href="detail?id=<%=article.id%>"><%=article.title%></a></td>
+			<td><%=article.extra__writer%></td>
+			<td><a href="modify?id=<%=article.id%>">수정</a></td>
+			<td><a href="doDelete?id=<%=article.id%>">삭제</a></td>
 		</tr>
 		<%
 		}

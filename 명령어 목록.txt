@@ -30,7 +30,8 @@ member logout
 
 ctrl + shift + r : 파일 빠르게 찾기
 
-
+figma사용
+연정's figma 사용하기
 
 
 
